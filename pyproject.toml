@@ -5,7 +5,7 @@ description = "A production-grade Agentic RAG system built with LangGraph, Milvu
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
-    {name = "Your Name", email = "your.email@example.com"}
+    {name = "CW5201", email = "19317334773@163.com"}
 ]
 requires-python = ">=3.11"
 keywords = ["rag", "langgraph", "milvus", "bge-m3", "knowledge-base", "ai", "llm"]
