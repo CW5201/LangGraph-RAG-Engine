@@ -7,7 +7,7 @@
 请通过以下方式报告：
 
 - 发送邮件到：19317334773@163.com
-- 或者使用 [GitHub Security Advisories](https://github.com/your-username/LangGraph-RAG-Engine/security/advisories/new)
+- 或者使用 [GitHub Security Advisories](https://github.com/CW5201/LangGraph-RAG-Engine/security/advisories/new)
 
 请提供以下信息：
 
@@ -42,7 +42,7 @@
 
 ## 已知安全问题
 
-请查看 [GitHub Security Advisories](https://github.com/your-username/LangGraph-RAG-Engine/security/advisories) 了解已知的安全问题。
+请查看 [GitHub Security Advisories](https://github.com/CW5201/LangGraph-RAG-Engine/security/advisories) 了解已知的安全问题。
 
 ## 致谢
 

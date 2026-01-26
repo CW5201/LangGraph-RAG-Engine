@@ -180,10 +180,14 @@ class NodeDocumentSplit(BaseNode):
     def _step_4_refine_chunks(self, sections: List[Dict[str, str]]) -> List[Dict[str, str]]:
         """
        【步骤4】Chunk精细化处理（核心：长切短合，适配大模型/检索）
-       执行流程：1.切分超长章节 2.合并过短章节 3.父标题兜底（适配Milvus向量库schema）
+       执行流程：1.过滤图片标签 2.切分超长章节 3.合并过短章节 4.父标题兜底（适配Milvus向量库schema）
        :param sections: 步骤3处理后的章节列表
        :return: 长度适中、低碎片化的最终Chunk列表
        """
+        # 阶段0：过滤图片标签
+        for section in sections:
+            section["content"] = self._remove_image_markdown(section["content"])
+
         # 阶段1：超长段落切分，控制在最大字符数内（self.config.max_content_length）
         refined_split = []
         for section in sections:
@@ -201,6 +205,24 @@ class NodeDocumentSplit(BaseNode):
 
         return final_sections
 
+    def _remove_image_markdown(self, content: str) -> str:
+        """
+        过滤Markdown中的图片标签
+        只删除本地图片路径（./images/xxx.png），保留MinIO/远程URL的图片
+        :param content: 原始内容
+        :return: 过滤后的内容
+        """
+        import re
+        def _replace_image(match):
+            url = match.group(2)
+            # 保留远程URL（http/https开头的），删除本地路径
+            if url.startswith('http://') or url.startswith('https://'):
+                return match.group(0)
+            return ''
+        content = re.sub(r'!\[(.*?)\]\((.*?)\)', _replace_image, content)
+        content = re.sub(r'<img[^>]*>', '', content, flags=re.IGNORECASE)
+        lines = [line for line in content.split('\n') if line.strip()]
+        return '\n'.join(lines)
 
     def _merge_short_sections(self, sections: List[Dict[str,str]]) -> List[Dict[str,str]]:
 

@@ -1,30 +1,26 @@
-FROM python:3.11-slim
-
-# 设置工作目录
+FROM registry.aliyuncs.com/library/python:3.11
 WORKDIR /app
 
-# 安装系统依赖
-RUN apt-get update && apt-get install -y \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Debian系统切换阿里源加速
+RUN sed -i 's/deb.debian.org/mirrors.aliyun.com/g' /etc/apt/sources.list && \
+    apt-get update && apt-get install -y curl && \
+    rm -rf /var/lib/apt/lists/*
 
-# 复制依赖文件
+# 清华源安装uv
+RUN pip install uv -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+# 先复制依赖文件，实现构建缓存（重点）
 COPY pyproject.toml uv.lock ./
 
-# 安装uv
-RUN pip install uv
+# uv拉取依赖使用清华源
+RUN uv sync --no-dev --index-url https://pypi.tuna.tsinghua.edu.cn/simple
 
-# 安装Python依赖
-RUN uv sync --frozen --no-dev
-
-# 复制项目代码
+# 最后复制业务代码
 COPY . .
 
-# 创建临时目录
 RUN mkdir -p /app/temp-files
 
-# 暴露端口
 EXPOSE 8000 8001
 
-# 默认命令（会被docker-compose覆盖）
-CMD ["python", "-m", "web.api.query_service"]
+# 同时启动导入服务和查询服务
+CMD bash -c "python -m web.api.import_service & python -m web.api.query_service & wait"
