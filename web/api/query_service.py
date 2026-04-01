@@ -11,6 +11,7 @@ from starlette.middleware.cors import CORSMiddleware
 from starlette.responses import FileResponse, StreamingResponse
 
 from processor.query_processor.main_graph import KBQueryWorkflow
+from processor.query_processor.main_graph_v2 import KBQueryWorkflowV2
 from utils.mongo_history_utils import clear_history, get_recent_messages, get_all_sessions
 from utils.sse_utils import create_sse_queue, SSEEvent, push_to_session, sse_generator
 from utils.task_utils import update_task_status, TASK_STATUS_PROCESSING, get_task_result, TASK_STATUS_COMPLETED, \
@@ -49,16 +50,47 @@ class QueryRequest(BaseModel):
     session_id: str = Field(None, description="会话ID")
     is_stream: bool = Field(False, description="是否流式返回")
 
+@app.post("/query/v2")
+async def query_v2(background_tasks: BackgroundTasks, request: QueryRequest):
+    """
+    v2.0 Multi-Agent 查询接口
+    路由策略：Router → Knowledge/WebSearch → Synthesizer
+    """
+    user_query = request.query
+    session_id = request.session_id if request.session_id else str(uuid.uuid4())
+    is_stream = request.is_stream
+
+    clear_task(session_id)
+
+    if is_stream:
+        create_sse_queue(session_id)
+    update_task_status(session_id, TASK_STATUS_PROCESSING, is_stream)
+
+    print(f"[v2] 开始处理流程... 是否流式: {is_stream}, query: {user_query}, session_id: {session_id}")
+
+    if is_stream:
+        background_tasks.add_task(run_query_v2_graph, session_id, user_query, is_stream)
+        return {
+            "message": "v2结果正在处理中...",
+            "session_id": session_id
+        }
+    else:
+        run_query_v2_graph(session_id, user_query, is_stream)
+        answer = get_task_result(session_id, "answer", "")
+        references = get_task_result(session_id, "references", [])
+        return {
+            "message": "v2处理完成！",
+            "session_id": session_id,
+            "answer": answer,
+            "references": references,
+            "done_list": []
+        }
+
+
 @app.post("/query")
 async def query(background_tasks: BackgroundTasks, request: QueryRequest):
     """
-    1 解析参数
-    2 更新任务状态
-    3 调用处理流程图
-    4 返回结果
-    :param background_tasks:
-    :param request:
-    :return:
+    v1.0 查询接口（兼容旧版）
     """
     user_query = request.query
     session_id = request.session_id if request.session_id else str(uuid.uuid4())
@@ -118,6 +150,28 @@ def run_query_graph(session_id: str, user_query: str, is_stream: bool = True):
         update_task_status(session_id, TASK_STATUS_COMPLETED, is_stream)
     except Exception as e:
         print(f"流程执行异常: {e}")
+        update_task_status(session_id, TASK_STATUS_FAILED, is_stream)
+        if is_stream:
+            push_to_session(session_id, SSEEvent.ERROR, {"error": str(e)})
+
+
+def run_query_v2_graph(session_id: str, user_query: str, is_stream: bool = True):
+    """v2.0 Multi-Agent 查询流程"""
+    print(f"[v2] 开始流程图处理...{session_id} {user_query} {is_stream}")
+
+    init_state = {
+        "original_query": user_query,
+        "session_id": session_id,
+        "is_stream": is_stream
+    }
+
+    try:
+        workflow = KBQueryWorkflowV2()
+        for chunk in workflow.run(init_state, stream=is_stream):
+            logger.debug(chunk)
+        update_task_status(session_id, TASK_STATUS_COMPLETED, is_stream)
+    except Exception as e:
+        print(f"[v2] 流程执行异常: {e}")
         update_task_status(session_id, TASK_STATUS_FAILED, is_stream)
         if is_stream:
             push_to_session(session_id, SSEEvent.ERROR, {"error": str(e)})
