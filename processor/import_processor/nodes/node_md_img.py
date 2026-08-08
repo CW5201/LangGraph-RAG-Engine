@@ -354,6 +354,12 @@ class NodeMDImg(BaseNode):
             # 2. 组装图片的完整路径并转成字符串
             img_path = str(images_dir / image_file)
 
+            # 2.5 过滤小图标（小于10KB的图片很可能是装饰性图标）
+            img_size = os.path.getsize(img_path)
+            if img_size < 10240:
+                self.logger.info(f"跳过小图标: {image_file} ({img_size} bytes)")
+                continue
+
             # 3. 查找这个图片在md文档中引用的上下文
             context = self._find_image_in_md(md_content, image_file)
 

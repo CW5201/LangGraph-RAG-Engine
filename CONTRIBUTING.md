@@ -6,7 +6,7 @@
 
 ### 报告 Bug
 
-1. 在 [GitHub Issues](https://github.com/your-username/LangGraph-RAG-Engine/issues) 中搜索是否已有相同问题
+1. 在 [GitHub Issues](https://github.com/CW5201/LangGraph-RAG-Engine/issues) 中搜索是否已有相同问题
 2. 如果没有，请创建新的 Issue，并包含以下信息：
    - 问题描述
    - 复现步骤
@@ -43,7 +43,7 @@
 
 ```bash
 # 1. 克隆仓库
-git clone https://github.com/your-username/LangGraph-RAG-Engine.git
+git clone https://github.com/CW5201/LangGraph-RAG-Engine.git
 cd LangGraph-RAG-Engine
 
 # 2. 安装依赖

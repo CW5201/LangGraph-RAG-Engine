@@ -46,11 +46,11 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-username/LangGraph-RAG-Engine"
-Documentation = "https://github.com/your-username/LangGraph-RAG-Engine#readme"
-Repository = "https://github.com/your-username/LangGraph-RAG-Engine"
-Issues = "https://github.com/your-username/LangGraph-RAG-Engine/issues"
-Changelog = "https://github.com/your-username/LangGraph-RAG-Engine/blob/main/CHANGELOG.md"
+Homepage = "https://github.com/CW5201/LangGraph-RAG-Engine"
+Documentation = "https://github.com/CW5201/LangGraph-RAG-Engine#readme"
+Repository = "https://github.com/CW5201/LangGraph-RAG-Engine"
+Issues = "https://github.com/CW5201/LangGraph-RAG-Engine/issues"
+Changelog = "https://github.com/CW5201/LangGraph-RAG-Engine/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [

@@ -100,7 +100,7 @@
 
 ```bash
 # 1. 克隆项目
-git clone https://github.com/your-username/LangGraph-RAG-Engine.git
+git clone https://github.com/CW5201/LangGraph-RAG-Engine.git
 cd LangGraph-RAG-Engine
 
 # 2. 一键启动所有服务

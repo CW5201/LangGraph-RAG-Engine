@@ -426,7 +426,7 @@
       </div>
       <div class="sidebar-nav">
         <button class="nav-btn active">+ 新对话</button>
-        <a href="http://127.0.0.1:8000/import.html" class="nav-btn" style="margin-top:8px;">添加知识库</a>
+        <a href="http://47.120.58.250:8000/import.html" class="nav-btn" style="margin-top:8px;">添加知识库</a>
       </div>
       <div class="history-label">历史对话</div>
       <div class="history-list" id="historyList"></div>
@@ -468,7 +468,7 @@
 
   <script>
 
-    const API_BASE = 'http://127.0.0.1:8001';
+    const API_BASE = window.location.origin;
     const chatEl = document.getElementById('chat');
     const inputEl = document.getElementById('input');
     const sendBtn = document.getElementById('send') || {disabled:false};
